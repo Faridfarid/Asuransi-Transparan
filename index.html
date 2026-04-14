@@ -415,10 +415,10 @@ const GEMINI_API_KEY = 'AIzaSyAJQgtJ6tLWC6g4V0G-FjoHGx1XZ0zYrKI';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${AIzaSyAJQgtJ6tLWC6g4V0G-FjoHGx1XZ0zYrKI}`;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 const POLICY_TYPES = ["Unit Link","Whole Life / Tradisional","Term Life","Kesehatan","Kendaraan","Jiwa Kredit","BPJS Tambahan"];
 let selectedType = "Unit Link";
-let pdfText = '';
+var pdfText = '';
 
 // Build type chips
 const tg = document.getElementById('typeGrid');
