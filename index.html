@@ -403,19 +403,19 @@ Contoh:
   <div id="results"></div>
 
   <footer>
-    AsuransiTransparan &middot; Powered by Google Gemini AI &middot; Gratis<br>
+    AsuransiTransparan &middot; Powered by Claude AI (Anthropic) &middot; Gratis<br>
     Bukan pengganti konsultasi profesional advisor terdaftar OJK.
   </footer>
 </div>
 
 <script>
-// ─── GANTI DENGAN GEMINI API KEY ANDA ───────────────────────────
-const GEMINI_API_KEY = 'GANTI_DENGAN_API_KEY_ANDA';
+// ─── GANTI DENGAN CLAUDE API KEY ANDA ───────────────────────────
+const CLAUDE_API_KEY = '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';
 // ────────────────────────────────────────────────────────────────
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const POLICY_TYPES = ["Unit Link","Whole Life / Tradisional","Term Life","Kesehatan","Kendaraan","Jiwa Kredit","BPJS Tambahan"];
 let selectedType = "Unit Link";
 var pdfText = '';
@@ -529,7 +529,7 @@ async function analyze() {
   const errBox = document.getElementById('errorBox');
   errBox.style.display = 'none';
 
-  if (GEMINI_API_KEY === 'GANTI_DENGAN_API_KEY_ANDA') return showErr('API Key belum diisi. Buka file index.html dan ganti GANTI_DENGAN_API_KEY_ANDA dengan key dari aistudio.google.com');
+  if (CLAUDE_API_KEY === 'GANTI_DENGAN_API_KEY_ANDA') return showErr('API Key belum diisi.');
   if (!finalText) return showErr('Upload file PDF atau ketik teks polis terlebih dahulu.');
 
   setLoading(true);
@@ -538,17 +538,23 @@ async function analyze() {
   const iv = setInterval(() => { mi=(mi+1)%LOADING.length; setStatus(LOADING[mi]); }, 1900);
 
   try {
-    const res = await fetch(GEMINI_URL, {
+    const res = await fetch(CLAUDE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': CLAUDE_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: PROMPT(selectedType, finalText) }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2048,
+        messages: [{ role: 'user', content: PROMPT(selectedType, finalText) }]
       })
     });
     if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || 'API error ' + res.status); }
     const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const raw = data.content?.[0]?.text || '';
     const clean = raw.replace(/```json|```/g,'').trim();
     renderResults(JSON.parse(clean));
   } catch(e) {
